@@ -1,0 +1,21 @@
+FROM rust:1.75
+
+# Instalacja podstawowych narzędzi
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    curl \
+    build-essential
+# Instalacja Zig jako cross-compiler
+RUN wget https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz
+RUN tar -xf zig-linux-x86_64-0.11.0.tar.xz
+RUN mv zig-linux-x86_64-0.11.0 /usr/local/zig
+ENV PATH="/usr/local/zig:${PATH}"
+
+# Instalacja cargo-zigbuild
+RUN cargo install cargo-zigbuild
+# Dodanie Windows target
+RUN rustup target add x86_64-pc-windows-gnu
+
+WORKDIR /app
+CMD ["cargo", "zigbuild", "--target", "x86_64-pc-windows-gnu", "--release"]
